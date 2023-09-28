@@ -2,13 +2,13 @@
 
 namespace CodingTracker;
 
-class Program
+internal static class Program
 {
-    static string? connectionString = ConfigurationManager.AppSettings["ConnectionString"];
+    private static readonly string? ConnectionString = ConfigurationManager.AppSettings["ConnectionString"];
 
-    static void Main(string[] args)
+    private static void Main(string[] args)
     {
         DatabaseManager dbManager = new();
-        // dbManager.CreateTable(connectionString);
+        dbManager.CreateTable(ConnectionString);
     }
 }
