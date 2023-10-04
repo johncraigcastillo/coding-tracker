@@ -8,10 +8,9 @@ internal static class Program
 
     private static void Main(string[] args)
     {
-        DatabaseManager dbManager = new();
         GetUserInput getUserInput = new();
-        
-        dbManager.CreateTable(ConnectionString);
+
+        DatabaseManager.CreateTable(ConnectionString);
         getUserInput.MainMenu();
     }
 }

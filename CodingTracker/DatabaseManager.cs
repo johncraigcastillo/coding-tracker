@@ -1,10 +1,11 @@
 using Microsoft.Data.Sqlite;
+using Spectre.Console;
 
 namespace CodingTracker;
 
 internal class DatabaseManager
 {
-    internal void CreateTable(string? connectionString)
+    internal static void CreateTable(string? connectionString)
     {
         using var connection = new SqliteConnection(connectionString);
         connection.Open();
@@ -18,5 +19,22 @@ internal class DatabaseManager
             );
             """;
         tableCommand.ExecuteNonQuery();
+    }
+
+    internal static void AddRecord(string? connectionString, Coding coding)
+    {
+        using var connection = new SqliteConnection(connectionString);
+        connection.Open();
+        using var insertCommand = connection.CreateCommand();
+        insertCommand.CommandText =
+            $"""
+             INSERT INTO coding_tracker (date, duration)
+             VALUES ('{coding.Date}', '{coding.Duration}');
+             """;
+        var rowsAffected = insertCommand.ExecuteNonQuery();
+        
+        AnsiConsole.MarkupLine(rowsAffected != 1
+            ? "[bold red]Error adding record![/]"
+            : "[bold green]Record added successfully![/]");
     }
 }

@@ -1,6 +1,5 @@
 using System.Globalization;
 using Spectre.Console;
-using System.ComponentModel;
 
 namespace CodingTracker;
 
@@ -40,11 +39,7 @@ internal class GetUserInput
     {
         return AnsiConsole.Prompt(new SelectionPrompt<string>()
             .Title("[bold blue]What would you like to do?[/]")
-            .AddChoices(new[]
-            {
-                "View Records", "Add Record", "Delete Record",
-                "Update Record", "Exit"
-            })
+            .AddChoices("View Records", "Add Record", "Delete Record", "Update Record", "Exit")
         );
     }
 
@@ -57,55 +52,42 @@ internal class GetUserInput
 
     private void ProcessAdd()
     {
-        var date = GetValidDateInput();
-        var duration = GetValidDurationInput();
+        var date = GetValidUserInput(type: InputType.Date);
+        var duration = GetValidUserInput(type: InputType.Duration);
+        CodingController.AddRecord(date: date, duration: duration);
     }
 
-    private string GetValidDurationInput()
+    private string GetValidUserInput(InputType type)
     {
-        string duration;
+        string userInput;
         do
         {
-            duration = GetInputFromUser(type: InputType.Duration);
-            if (duration == "q")
+            userInput = RawUserInput(type: type);
+            if (userInput == "q")
             {
                 MainMenu();
             }
 
-            if (!IsValidInput(userInput: duration, type: InputType.Duration))
+            if (!IsValidInput(userInput: userInput, type: type))
             {
-                DisplayInvalidInputMessage(type: InputType.Duration);
+                DisplayInvalidInputMessage(type: type);
             }
-        } while (!IsValidInput(userInput: duration, type: InputType.Duration));
+        } while (!IsValidInput(userInput: userInput, type: type));
 
-        return duration;
+        return userInput;
     }
 
-    private string GetValidDateInput()
+
+    /// <summary>
+    /// Prompts the user for input based on the specified input type.
+    /// </summary>
+    /// <param name="type">The type of input to prompt for (either date or duration)</param>
+    /// <returns>The user-provided input as a string.</returns>
+    private static string RawUserInput(InputType type)
     {
-        string date;
-        do
-        {
-            date = GetInputFromUser(type: InputType.Date);
-            if (date == "q")
-            {
-                MainMenu();
-            }
-
-            if (!IsValidInput(userInput: date, InputType.Date))
-            {
-                DisplayInvalidInputMessage(type: InputType.Date);
-            }
-        } while (!IsValidInput(userInput: date, InputType.Date));
-
-        return date;
-    }
-
-    private static void DisplayInvalidInputMessage(InputType type)
-    {
-        AnsiConsole.MarkupLine(type == InputType.Date
-            ? "[bold red]Date must be a valid date in the format MM/DD/YYYY[/]"
-            : "[bold red]Duration must be a valid time in the format hh:mm[/]");
+        return AnsiConsole.Ask<string>(type == InputType.Date
+            ? "[bold blue]Enter the date of the coding session (MM/DD/YYYY)[/] [bold red]or q to cancel[/]:"
+            : "[bold blue]Enter the duration of the coding session (hh:mm)[/] [bold red]or q to cancel[/]:");
     }
 
     private static bool IsValidInput(string userInput, InputType type)
@@ -119,10 +101,10 @@ internal class GetUserInput
         };
     }
 
-    private static string GetInputFromUser(InputType type)
+    private static void DisplayInvalidInputMessage(InputType type)
     {
-        return AnsiConsole.Ask<string>(type == InputType.Date
-            ? "[bold blue]Enter the date of the coding session (MM/DD/YYYY)[/] [bold red]or q to cancel[/]:"
-            : "[bold blue]Enter the duration of the coding session (hh:mm)[/] [bold red]or q to cancel[/]:");
+        AnsiConsole.MarkupLine(type == InputType.Date
+            ? "[bold red]Date must be a valid date in the format MM/DD/YYYY[/]"
+            : "[bold red]Duration must be a valid time in the format hh:mm[/]");
     }
 }
