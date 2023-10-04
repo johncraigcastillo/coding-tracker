@@ -1,16 +1,14 @@
-﻿using System.Configuration;
+﻿using CodingTracker.Data;
 
 namespace CodingTracker;
 
 internal static class Program
 {
-    private static readonly string? ConnectionString = ConfigurationManager.AppSettings["ConnectionString"];
-
     private static void Main(string[] args)
     {
-        GetUserInput getUserInput = new();
+        UserInputController userInputController = new();
 
-        DatabaseManager.CreateTable(ConnectionString);
-        getUserInput.MainMenu();
+        DatabaseManager.CreateTable();
+        userInputController.MainMenu();
     }
 }
